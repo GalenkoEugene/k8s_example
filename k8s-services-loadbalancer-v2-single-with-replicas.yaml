@@ -1,0 +1,42 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: my-web-deployment-with-lb
+  labels:
+    app  : my-k8s-application
+    env  : load-balancer
+    owner: Yevhenii_Halenko
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      k8s.app/name: app-under-lb
+  template:
+    metadata:
+      labels:
+        k8s.app/name: app-under-lb # Service will look for those PODS labels!!!
+    spec:
+      containers:
+        - name : app-under-lb-web
+          image: re4port/k8sphp:latest
+          ports:
+            - containerPort: 80
+              name: http-web-svc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-single-pod-service
+  labels:
+    env: prod
+    owner: Yevhenii_Halenko
+spec:
+  selector:
+    k8s.app/name: app-under-lb # Selecting PODS with those labels!!!
+  ports:
+    - name      : app-listener
+      protocol  : TCP
+      port      : 80 # Port on Load Balancer
+      targetPort: 80 # Port on POD
+  type: LoadBalancer

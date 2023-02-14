@@ -1,0 +1,24 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: my-web-deployment-replicas
+  labels:
+    app     : my-web-application
+    replicas: "true"
+    env     : replicas
+    owner   : Yevhenii_Halenko
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: app-name
+  template:
+    metadata:
+      labels:
+        app: app-name
+    spec:
+      containers:
+        - name : app-name-web
+          image: re4port/k8sphp:latest
+          ports:
+            - containerPort: 80

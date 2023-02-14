@@ -1,0 +1,22 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: my-web-deployment
+  labels:
+    app     : my-web-application
+    replicas: "false"
+    owner   : Yevhenii_Halenko
+spec:
+  selector:
+    matchLabels:
+      project: ptnpnh
+  template:
+    metadata:
+      labels:
+        project: ptnpnh
+    spec:
+      containers:
+        - name : ptnpnh-web
+          image: re4port/k8sphp:latest
+          ports:
+            - containerPort: 80
