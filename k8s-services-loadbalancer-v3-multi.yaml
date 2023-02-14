@@ -1,0 +1,53 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: my-web-deployment-multi-pod
+  labels:
+    app  : my-k8s-deployment
+    env  : load-balancer
+    owner: Yevhenii_Halenko
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      project/name: multi
+  template:
+    metadata:
+      labels:
+        project/name: multi # Service will look for those PODS labels!!!
+    spec:
+      containers: # runs 2 containers on each replica Pod's
+        - name : php-app
+          image: re4port/k8sphp:latest
+          ports:
+            - containerPort: 80
+              name: php-app-port
+
+        - name : external-app
+          image: tomcat:8.5.38
+          ports:
+            - containerPort: 8080
+              name: tomcat-app-port
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-multi-pod-service
+  labels:
+    env: prod
+    owner: Yevhenii_Halenko
+spec:
+  type: LoadBalancer
+  selector:
+    project/name: multi # Selecting PODS with those labels!!!
+  ports:
+    - name      : my-php-web-app-listener
+      protocol  : TCP
+      port      : 80 # Port on Load Balancer
+      targetPort: 80 # Port on POD
+
+    - name      : external-tomcat-web-app-listener
+      protocol  : TCP
+      port      : 8888 # Port on Load Balancer
+      targetPort: 8080 # Port on POD
